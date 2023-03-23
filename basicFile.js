@@ -1,4 +1,5 @@
 //imports
+require("dotenv").config();
 const express = require("express");
 const mysql = require("mysql2/promise");
 const bodyParser = require("body-parser");
@@ -13,15 +14,15 @@ app.use(bodyParser.json());
 //connection
 const pool = mysql.createPool({
   host: "sql12.freemysqlhosting.net",
-  user: "sql12607833",
-  password: "ew5F5tzTT2",
+  user: process.env.USER,
+  password: process.env.PASSWORD,
   database: "sql12607833",
   connectionLimit: 100, // set connection limit
 });
 
 app.get("/Cars", async (req, res) => {
   const connection = await pool.getConnection();
-  const [rows, fields] = await connection.query(
+  const [rows] = await connection.query(
     "SELECT * FROM sql12607833.CarsCollection"
   );
   connection.release();
@@ -31,7 +32,7 @@ app.get("/Cars", async (req, res) => {
 app.get("/Model", async (req, res) => {
   const Make = req.query.Make;
   const connection = await pool.getConnection();
-  const [rows, fields] = await connection.query(
+  const [rows] = await connection.query(
     "SELECT DISTINCT Model FROM sql12607833.CarsCollection WHERE Make = ?",
     [Make]
   );
@@ -43,7 +44,7 @@ app.get("/Year", async (req, res) => {
   const Make = req.query.Make;
   const Model = req.query.Model;
   const connection = await pool.getConnection();
-  const [rows, fields] = await connection.query(
+  const [rows] = await connection.query(
     "SELECT DISTINCT Year FROM sql12607833.CarsCollection WHERE Make = ? && Model = ?",
     [Make, Model]
   );
@@ -56,7 +57,7 @@ app.get("/Filtered", async (req, res) => {
   const Model = req.query.Model;
   const Year = req.query.Year;
   const connection = await pool.getConnection();
-  const [rows, fields] = await connection.query(
+  const [rows] = await connection.query(
     "SELECT * FROM sql12607833.CarsCollection WHERE Make = ? && Model = ? && Year = ?",
     [Make, Model, Year]
   );
@@ -75,7 +76,8 @@ app.put("/UpdateCars", async (req, res) => {
   res.status(200).send("Update successful");
 });
 
-const PORT = 3000;
+const PORT = (process.env.PORT || 3000);
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
